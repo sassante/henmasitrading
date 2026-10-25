@@ -81,6 +81,7 @@ export async function upsertProduct(input: {
   sku: string
   quantity: number
   reorderLevel?: number
+  imageUrl?: string
 }) {
    await requireAdmin()
   if (!input.name.trim() || !input.sku.trim() || input.price < 0 || input.quantity < 0) throw new Error('Invalid product data')
@@ -88,12 +89,21 @@ export async function upsertProduct(input: {
   try {
     await client.query('BEGIN')
     const product = await client.query(
-      `INSERT INTO public.products (id, name, description, category, price, sku)
-       VALUES (COALESCE($1, gen_random_uuid()::text), $2, $3, $4, $5, $6)
+      `INSERT INTO public.products (id, name, description, category, price, sku, image_url)
+       VALUES (COALESCE($1, gen_random_uuid()::text), $2, $3, $4, $5, $6, $7)
        ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description,
-       category = EXCLUDED.category, price = EXCLUDED.price, sku = EXCLUDED.sku, updated_at = now()
+       category = EXCLUDED.category, price = EXCLUDED.price, sku = EXCLUDED.sku,
+       image_url = EXCLUDED.image_url, updated_at = now()
        RETURNING id`,
-      [input.id ?? null, input.name.trim(), input.description.trim(), input.category.trim(), input.price, input.sku.trim()],
+      [
+        input.id ?? null,
+        input.name.trim(),
+        input.description.trim(),
+        input.category.trim(),
+        input.price,
+        input.sku.trim(),
+        input.imageUrl?.trim() || null,
+      ],
     )
     await client.query(
       `INSERT INTO public.inventory (product_id, quantity, reorder_level)

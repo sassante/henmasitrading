@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { AdminLayout } from '@/components/admin-layout'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -11,73 +11,80 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { MoreHorizontal, Eye, CheckCircle, XCircle, Truck } from 'lucide-react'
-import { mockOrders, Order } from '@/lib/admin-data'
+import { MoreHorizontal, CheckCircle, XCircle, Truck, Package, ClipboardCheck } from 'lucide-react'
 import { toast } from 'sonner'
+import { listAdminOrders, updateOrderStatus } from '@/lib/commerce-actions'
+
+type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'ready' | 'completed' | 'cancelled'
+
+type AdminOrder = {
+  id: string
+  status: OrderStatus
+  paymentStatus: string
+  totalAmount: number
+  deliveryAddress: string | null
+  createdAt: string | Date
+  customerName: string | null
+  phone: string | null
+}
+
+const statuses: OrderStatus[] = ['pending', 'confirmed', 'processing', 'ready', 'completed', 'cancelled']
+
+const statusLabel = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+
+const statusVariant = (status: string) => {
+  switch (status) {
+    case 'pending':
+      return 'destructive'
+    case 'completed':
+    case 'confirmed':
+      return 'secondary'
+    case 'cancelled':
+      return 'outline'
+    default:
+      return 'default'
+  }
+}
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>(mockOrders)
+  const [orders, setOrders] = useState<AdminOrder[]>([])
+  const [loading, setLoading] = useState(true)
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null)
 
-  const statuses = ['pending', 'confirmed', 'processing', 'delivered', 'cancelled']
-
-  const filteredOrders = selectedStatus
-    ? orders.filter((o) => o.status === selectedStatus)
-    : orders
-
-  const handleStatusChange = (orderId: string, newStatus: string) => {
-    setOrders(
-      orders.map((o) =>
-        o.id === orderId ? { ...o, status: newStatus as Order['status'] } : o
-      )
-    )
-    toast.success(`Order status updated to ${newStatus}`)
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'destructive'
-      case 'confirmed':
-        return 'secondary'
-      case 'processing':
-        return 'default'
-      case 'delivered':
-        return 'secondary'
-      case 'cancelled':
-        return 'outline'
-      default:
-        return 'default'
+  const load = useCallback(async () => {
+    try {
+      setOrders((await listAdminOrders()) as AdminOrder[])
+    } catch {
+      toast.error('Could not load orders')
+    } finally {
+      setLoading(false)
     }
-  }
+  }, [])
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return '⏳'
-      case 'confirmed':
-        return '✓'
-      case 'processing':
-        return '⚙️'
-      case 'delivered':
-        return '✅'
-      case 'cancelled':
-        return '✕'
-      default:
-        return '•'
+  useEffect(() => {
+    load()
+  }, [load])
+
+  const filteredOrders = selectedStatus ? orders.filter((o) => o.status === selectedStatus) : orders
+
+  const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
+    try {
+      await updateOrderStatus(orderId, newStatus)
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)))
+      toast.success(`Order marked ${newStatus}`)
+    } catch {
+      toast.error('Could not update the order')
     }
   }
 
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {/* Page Header */}
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Orders</h1>
-          <p className="text-gray-600 mt-1">Manage customer orders and track shipments</p>
+          <p className="text-gray-600 mt-1">Track WhatsApp orders and update their status</p>
         </div>
 
-        {/* Status Filters */}
         <Card className="border-0 shadow-sm">
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-2">
@@ -87,7 +94,7 @@ export default function OrdersPage() {
                 onClick={() => setSelectedStatus(null)}
                 className={selectedStatus === null ? 'bg-yellow-500 text-gray-900' : ''}
               >
-                All Orders
+                All orders ({orders.length})
               </Button>
               {statuses.map((status) => {
                 const count = orders.filter((o) => o.status === status).length
@@ -99,7 +106,7 @@ export default function OrdersPage() {
                     onClick={() => setSelectedStatus(status)}
                     className={selectedStatus === status ? 'bg-yellow-500 text-gray-900' : ''}
                   >
-                    {status.charAt(0).toUpperCase() + status.slice(1)} ({count})
+                    {statusLabel(status)} ({count})
                   </Button>
                 )
               })}
@@ -107,7 +114,6 @@ export default function OrdersPage() {
           </CardContent>
         </Card>
 
-        {/* Orders Table */}
         <Card className="border-0 shadow-sm">
           <CardHeader>
             <CardTitle>Orders ({filteredOrders.length})</CardTitle>
@@ -117,9 +123,9 @@ export default function OrdersPage() {
               <table className="w-full text-sm">
                 <thead className="border-b border-gray-200 bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-900">Order ID</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-900">Order</th>
                     <th className="px-4 py-3 text-left font-semibold text-gray-900">Customer</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-900">Location</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-900">Delivery address</th>
                     <th className="px-4 py-3 text-right font-semibold text-gray-900">Amount</th>
                     <th className="px-4 py-3 text-center font-semibold text-gray-900">Status</th>
                     <th className="px-4 py-3 text-left font-semibold text-gray-900">Date</th>
@@ -129,40 +135,34 @@ export default function OrdersPage() {
                 <tbody className="divide-y divide-gray-200">
                   {filteredOrders.map((order) => (
                     <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3">
-                        <p className="font-semibold text-gray-900">{order.id}</p>
+                      <td className="px-4 py-3 font-mono text-xs text-gray-900">
+                        #{order.id.slice(0, 8)}
                       </td>
                       <td className="px-4 py-3">
-                        <div>
-                          <p className="font-medium text-gray-900">{order.customerName}</p>
-                          <p className="text-xs text-gray-500">{order.customerPhone}</p>
-                        </div>
+                        <p className="font-medium text-gray-900">{order.customerName ?? 'Unknown'}</p>
+                        <p className="text-xs text-gray-500">{order.phone}</p>
                       </td>
-                      <td className="px-4 py-3 text-gray-700">{order.deliveryLocation}</td>
+                      <td className="px-4 py-3 text-gray-700">{order.deliveryAddress}</td>
                       <td className="px-4 py-3 text-right font-semibold text-gray-900">
-                        GH₵{order.totalAmount.toFixed(2)}
+                        GH₵{Number(order.totalAmount).toFixed(2)}
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <Badge variant={getStatusColor(order.status) as any}>
-                          <span className="mr-1">{getStatusIcon(order.status)}</span>
-                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        <Badge variant={statusVariant(order.status) as any}>
+                          {statusLabel(order.status)}
                         </Badge>
                       </td>
                       <td className="px-4 py-3 text-gray-600">
-                        {order.createdAt.toLocaleDateString()}
+                        {new Date(order.createdAt).toLocaleDateString()}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="sm">
                               <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Change status</span>
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem onClick={() => toast.info('View order details')}>
-                              <Eye className="h-4 w-4 mr-2" />
-                              View Details
-                            </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => handleStatusChange(order.id, 'confirmed')}
                               disabled={order.status === 'confirmed'}
@@ -175,21 +175,29 @@ export default function OrdersPage() {
                               disabled={order.status === 'processing'}
                             >
                               <Truck className="h-4 w-4 mr-2" />
-                              Mark Processing
+                              Mark processing
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onClick={() => handleStatusChange(order.id, 'delivered')}
-                              disabled={order.status === 'delivered'}
+                              onClick={() => handleStatusChange(order.id, 'ready')}
+                              disabled={order.status === 'ready'}
                             >
-                              <CheckCircle className="h-4 w-4 mr-2" />
-                              Mark Delivered
+                              <Package className="h-4 w-4 mr-2" />
+                              Mark ready
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleStatusChange(order.id, 'completed')}
+                              disabled={order.status === 'completed'}
+                            >
+                              <ClipboardCheck className="h-4 w-4 mr-2" />
+                              Mark completed
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => handleStatusChange(order.id, 'cancelled')}
+                              disabled={order.status === 'cancelled'}
                               className="text-red-600"
                             >
                               <XCircle className="h-4 w-4 mr-2" />
-                              Cancel Order
+                              Cancel order
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -200,9 +208,14 @@ export default function OrdersPage() {
               </table>
             </div>
 
-            {filteredOrders.length === 0 && (
+            {loading && <p className="text-center py-8 text-gray-500">Loading orders…</p>}
+            {!loading && filteredOrders.length === 0 && (
               <div className="text-center py-8">
-                <p className="text-gray-500">No orders found with selected filters</p>
+                <p className="text-gray-500">
+                  {orders.length === 0
+                    ? 'No orders yet. They appear here when customers check out.'
+                    : 'No orders with this status'}
+                </p>
               </div>
             )}
           </CardContent>
