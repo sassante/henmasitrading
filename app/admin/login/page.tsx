@@ -90,16 +90,6 @@ export default function AdminLoginPage() {
               </Button>
             </form>
 
-            {/* Demo credentials hint */}
-            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-gray-700 font-medium mb-2">Demo Credentials:</p>
-              <p className="text-xs text-gray-600 mb-1">
-                <span className="font-mono text-blue-600">admin@henmasi.com</span>
-              </p>
-              <p className="text-xs text-gray-600">
-                <span className="font-mono text-blue-600">admin123</span>
-              </p>
-            </div>
           </CardContent>
         </Card>
 
