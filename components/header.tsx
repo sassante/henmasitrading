@@ -8,19 +8,20 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Badge } from "@/components/ui/badge"
 import { useCartStore } from "@/lib/store"
+import { authClient, useSession } from "@/lib/auth-client"
 
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/products", label: "Products" },
   { href: "/about", label: "About Us" },
   { href: "/contact", label: "Contact" },
-  { href: "/auth", label: "Sign In" },
 ]
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const items = useCartStore((state) => state.items)
+  const { data: session } = useSession()
   const itemCount = items.reduce((count, item) => count + item.quantity, 0)
 
   useEffect(() => {
@@ -89,6 +90,16 @@ export function Header() {
                 </a>
               </Button>
             </motion.div>
+
+            {session?.user ? (
+               <Button variant="outline" size="sm" onClick={() => authClient.signOut().then(() => window.location.reload())}>
+                  Sign out
+               </Button>
+            ) : (
+               <Button variant="outline" size="sm" asChild>
+                  <Link href="/auth">Sign In</Link>
+               </Button>
+            )}
 
             {/* Cart */}
             <motion.div

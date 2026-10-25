@@ -27,6 +27,17 @@ async function getSessionUser() {
   return session?.user ?? null
 }
 
+async function requireAdmin() {
+  const user = await getSessionUser()
+  const admins = (process.env.ADMIN_EMAILS ?? '')
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+  if (!user || !admins.includes(user.email.toLowerCase())) {
+    throw new Error('Unauthorized')
+  }
+  return user
+}
+
 export async function listProducts(): Promise<CatalogProduct[]> {
   const result = await pool.query(`
     SELECT p.id, p.name, p.description, p.category, p.price::float8 AS price,
@@ -41,9 +52,8 @@ export async function listProducts(): Promise<CatalogProduct[]> {
   return result.rows
 }
 
-export async function getAdminOverview() {
-  const user = await getSessionUser()
-  if (!user) throw new Error('Unauthorized')
+export async function getAdminStats() {
+  await requireAdmin()
 
   const [products, orders, customers, revenue, lowStock] = await Promise.all([
     pool.query(`SELECT COUNT(*)::int AS count FROM public.products WHERE is_active = true`),
@@ -72,8 +82,7 @@ export async function upsertProduct(input: {
   quantity: number
   reorderLevel?: number
 }) {
-  const user = await getSessionUser()
-  if (!user) throw new Error('Unauthorized')
+   await requireAdmin()
   if (!input.name.trim() || !input.sku.trim() || input.price < 0 || input.quantity < 0) throw new Error('Invalid product data')
   const client = await pool.connect()
   try {
@@ -105,16 +114,14 @@ export async function upsertProduct(input: {
 }
 
 export async function deleteProduct(productId: string) {
-  const user = await getSessionUser()
-  if (!user) throw new Error('Unauthorized')
+   await requireAdmin()
   await pool.query(`UPDATE public.products SET is_active = false, updated_at = now() WHERE id = $1`, [productId])
   revalidatePath('/admin/products')
   revalidatePath('/products')
 }
 
 export async function listAdminOrders() {
-  const user = await getSessionUser()
-  if (!user) throw new Error('Unauthorized')
+    await requireAdmin()
   const result = await pool.query(`
     SELECT o.id, o.status, o.payment_status AS "paymentStatus", o.total_amount::float8 AS "totalAmount",
            o.delivery_address AS "deliveryAddress", o.created_at AS "createdAt",
@@ -127,16 +134,14 @@ export async function listAdminOrders() {
 }
 
 export async function updateOrderStatus(orderId: string, status: 'pending' | 'confirmed' | 'processing' | 'ready' | 'completed' | 'cancelled') {
-  const user = await getSessionUser()
-  if (!user) throw new Error('Unauthorized')
+  await requireAdmin()
   await pool.query(`UPDATE public.orders SET status = $1, updated_at = now() WHERE id = $2`, [status, orderId])
   revalidatePath('/admin/orders')
   revalidatePath('/admin/dashboard')
 }
 
 export async function listAdminCustomers() {
-  const user = await getSessionUser()
-  if (!user) throw new Error('Unauthorized')
+  await requireAdmin()
   const result = await pool.query(`
     SELECT c.id, c.full_name AS "fullName", c.email, c.phone, c.delivery_address AS "deliveryAddress",
            c.created_at AS "createdAt", COUNT(o.id)::int AS "orderCount",

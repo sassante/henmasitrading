@@ -28,8 +28,7 @@ export default function AdminLoginPage() {
       }
 
       toast.success('Login successful!')
-      router.push('/admin')
-      router.refresh()
+            window.location.href = '/admin'
     } catch {
       toast.error('Unable to sign in. Please try again.')
     } finally {
