@@ -177,6 +177,15 @@ export function Header() {
                       </motion.div>
                     ))}
                   </nav>
+            {session?.user ? (
+               <Button variant="outline" size="sm" onClick={() => authClient.signOut().then(() => window.location.reload())}>
+                  Sign out
+               </Button>
+            ) : (
+               <Button variant="outline" size="sm" asChild>
+                  <Link href="/auth">Sign In</Link>
+               </Button>
+            )}
 
                   {/* Mobile Menu Footer */}
                   <div className="border-t px-6 py-4 space-y-3">

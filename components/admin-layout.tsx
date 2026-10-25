@@ -1,22 +1,15 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { useAdminStore } from '@/lib/admin-store'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
 import { AdminSidebar } from '@/components/admin-sidebar'
+import { useSession } from '@/lib/auth-client'
 
 export function AdminLayout({ children }: { children: ReactNode }) {
-  const { isAuthenticated } = useAdminStore()
-  const router = useRouter()
+  const { data: session, isPending } = useSession()
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/admin/login')
-    }
-  }, [isAuthenticated, router])
-
-  if (!isAuthenticated) {
+  // app/admin/layout.tsx already redirects people who aren't signed in,
+  // so this only waits for the session to load.
+  if (isPending || !session?.user) {
     return null
   }
 
