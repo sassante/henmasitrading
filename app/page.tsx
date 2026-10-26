@@ -141,7 +141,7 @@ export default function HomePage() {
               </motion.div>
 
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button asChild variant="outline" size="lg" className="border-white/30 text-white hover:bg-white/10 backdrop-blur-sm">
+                <Button asChild variant="outline" size="lg" className="border-white/30 text-black hover:bg-white/10 backdrop-blur-sm">
                   <Link href="/contact">Contact Us</Link>
                 </Button>
               </motion.div>
@@ -317,8 +317,8 @@ export default function HomePage() {
               </motion.div>
 
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button asChild size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10">
-                  <a href="https://wa.me/233201234567" target="_blank" rel="noopener noreferrer">
+                <Button asChild size="lg" variant="outline" className="border-white/30 text-black hover:bg-white/10">
+                  <a href="https://wa.me/233240401653" target="_blank" rel="noopener noreferrer">
                     WhatsApp Us
                   </a>
                 </Button>

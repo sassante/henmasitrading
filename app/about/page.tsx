@@ -8,7 +8,7 @@ import { AnimatedCounter } from "@/components/animated-counter"
 import { staggerContainerVariants, itemVariants } from "@/lib/animations"
 
 const stats = [
-  { value: "10+", label: "Years Experience" },
+  { value: "20+", label: "Years Experience" },
   { value: "5000+", label: "Products Available" },
   { value: "2000+", label: "Happy Customers" },
   { value: "24/7", label: "Support Available" },
@@ -56,7 +56,7 @@ const faqItems = [
   },
   {
     question: "Can I return products?",
-    answer: "We have a 7-day return policy for unopened, defective products. Items must be in original condition with packaging."
+    answer: "We have a 2-day return policy for unopened, defective products. Items must be in original condition with packaging."
   },
   {
     question: "Do you provide technical support?",
@@ -105,7 +105,7 @@ export default function AboutPage() {
               variants={itemVariants}
               className="mt-6 text-lg text-gray-200 leading-relaxed"
             >
-              For over a decade, we&apos;ve been Ghana&apos;s trusted source for industrial electrical supplies. 
+              For over two decades, we&apos;ve been Ghana&apos;s trusted source for industrial electrical supplies. 
               Based in the heart of Accra Central, we serve contractors, engineers, and businesses 
               across the nation with quality products and exceptional service.
             </motion.p>
@@ -163,7 +163,7 @@ export default function AboutPage() {
               </div>
               <p className="text-muted-foreground leading-relaxed">
                 To empower Ghana&apos;s businesses with high-quality, affordable industrial electrical solutions 
-                that drive productivity, safety, and growth. We&apos;re committed to being more than just a supplier—
+                that drive productivity, safety, and growth. We&apos;re committed to being more than just a supplier,
                 we&apos;re your trusted technical partner.
               </p>
             </motion.div>

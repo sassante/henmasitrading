@@ -52,11 +52,11 @@ export function Footer() {
             <div className="flex flex-col gap-3 text-sm text-gray-400">
               <div className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                <span>Accra Central, Greater Accra, Ghana</span>
+                <span>Opera Square, Accra, Ghana</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-primary flex-shrink-0" />
-                <span>+233 20 123 4567</span>
+                <span>+233 55 771 3914, +233 24 040 1653</span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-primary flex-shrink-0" />
@@ -73,13 +73,13 @@ export function Footer() {
             <div className="flex flex-col gap-2 text-sm text-gray-400">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-primary flex-shrink-0" />
-                <span>Mon - Fri: 8:00 AM - 6:00 PM</span>
+                <span>Mon - Fri: 7:00 AM - 6:00 PM</span>
               </div>
-              <p>Saturday: 9:00 AM - 4:00 PM</p>
+              <p>Saturday: 8:00 AM - 5:00 PM</p>
               <p>Sunday: Closed</p>
             </div>
             <a
-              href="https://wa.me/233201234567"
+              href="https://wa.me/233557713914"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-4 inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-all hover:shadow-lg hover:scale-105"

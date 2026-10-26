@@ -38,7 +38,7 @@ export function Header() {
               <Zap className="h-5 w-5 text-primary-foreground" />
             </div>
             <div className="hidden sm:flex flex-col leading-none">
-              <span className="text-base font-bold">Henmasi</span>
+              <span className="text-base font-bold">Henmasi Trading</span>
               <span className="text-xs text-muted-foreground">Enterprise</span>
             </div>
           </Link>
@@ -82,7 +82,7 @@ export function Header() {
                 size="sm"
               >
                 <a
-                  href="https://wa.me/233201234567"
+                  href="https://wa.me/233557713914"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -195,7 +195,7 @@ export function Header() {
                       size="sm"
                     >
                       <a
-                        href="https://wa.me/233201234567"
+                        href="https://wa.me/233557713914"
                         target="_blank"
                         rel="noopener noreferrer"
                       >

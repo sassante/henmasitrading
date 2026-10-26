@@ -20,7 +20,7 @@ const contactInfo = [
   {
     icon: Phone,
     title: "Call Us",
-    details: ["+233 20 123 4567", "+233 30 212 3456"],
+    details: ["+233 55 771 3914", "+233 24 040 1653"],
   },
   {
     icon: Mail,
@@ -30,7 +30,7 @@ const contactInfo = [
   {
     icon: Clock,
     title: "Business Hours",
-    details: ["Mon-Fri: 8:00 AM - 6:00 PM", "Sat: 9:00 AM - 4:00 PM"],
+    details: ["Mon-Fri: 7:00 AM - 6:00 PM", "Sat: 8:00 AM - 5:00 PM"],
   },
 ]
 
@@ -112,7 +112,7 @@ export default function ContactPage() {
                 className="bg-green-600 hover:bg-green-700 text-white"
               >
                 <a
-                  href="https://wa.me/233201234567"
+                  href="https://wa.me/233557713914"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -223,7 +223,7 @@ export default function ContactPage() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      placeholder="your@email.com"
+                      placeholder="henmasitradin@gmail.com"
                     />
                   </div>
                 </motion.div>
@@ -312,7 +312,7 @@ export default function ContactPage() {
                   </motion.div>
                   <div>
                     <h3 className="font-semibold mb-2">Quick Response</h3>
-                    <p className="text-sm text-muted-foreground">We typically respond within 2-4 hours during business hours</p>
+                    <p className="text-sm text-muted-foreground">We typically respond within 1-2 hours during business hours</p>
                   </div>
                 </CardContent>
               </Card>
@@ -329,7 +329,7 @@ export default function ContactPage() {
                   </motion.div>
                   <div>
                     <h3 className="font-semibold mb-2">Support Hours</h3>
-                    <p className="text-sm text-muted-foreground">Mon-Fri: 8:00 AM - 6:00 PM<br />Sat: 9:00 AM - 4:00 PM</p>
+                    <p className="text-sm text-muted-foreground">Mon-Fri: 7:00 AM - 6:00 PM<br />Sat: 8:00 AM - 5:00 PM</p>
                   </div>
                 </CardContent>
               </Card>
@@ -380,7 +380,7 @@ export default function ContactPage() {
                   className="w-full bg-green-600 hover:bg-green-700 text-white"
                 >
                   <a
-                    href="https://wa.me/233201234567"
+                    href="https://wa.me/233557713914"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -408,7 +408,7 @@ export default function ContactPage() {
               width="100%"
               height="100%"
               style={{ border: 0 }}
-              allowFullScreen=""
+              allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             />
