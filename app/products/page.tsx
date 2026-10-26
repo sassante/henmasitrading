@@ -5,9 +5,8 @@ import { Search, Grid, Filter } from "lucide-react"
 import { motion } from "framer-motion"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { ProductCard } from "@/components/product-card"
-import { products, categories } from "@/lib/products"
+import { useCatalog } from "@/lib/use-catalog"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { staggerContainerVariants, itemVariants } from "@/lib/animations"
@@ -15,31 +14,35 @@ import { staggerContainerVariants, itemVariants } from "@/lib/animations"
 function ProductsContent() {
   const searchParams = useSearchParams()
   const initialCategory = searchParams.get("category") || "All"
-  
+  const { products, loading, error } = useCatalog()
+
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState(initialCategory)
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
-      const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchQuery.toLowerCase())
+      const q = searchQuery.toLowerCase()
+      const matchesSearch =
+        product.name.toLowerCase().includes(q) || product.description.toLowerCase().includes(q)
       const matchesCategory = selectedCategory === "All" || product.category === selectedCategory
       return matchesSearch && matchesCategory
     })
-  }, [searchQuery, selectedCategory])
+  }, [products, searchQuery, selectedCategory])
 
-  const categoryList = ["All", ...categories]
+  const categoryList = useMemo(
+    () => ["All", ...Array.from(new Set(products.map((p) => p.category).filter(Boolean)))],
+    [products],
+  )
 
   return (
     <div className="flex flex-col">
-      {/* Dynamic Header Section */}
+      {/* Header */}
       <motion.section
         className="relative py-12 bg-gradient-to-br from-secondary/40 via-secondary/20 to-background overflow-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6 }}
       >
-        {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <motion.div
             className="absolute top-20 left-10 w-80 h-80 bg-primary/10 rounded-full blur-3xl"
@@ -72,16 +75,14 @@ function ProductsContent() {
         </div>
       </motion.section>
 
-      {/* Main Content */}
+      {/* Main content */}
       <div className="container mx-auto px-4 py-12">
-        {/* Search and Filters */}
         <motion.div
           className="mb-12 flex flex-col gap-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
-          {/* Search Bar */}
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -93,14 +94,9 @@ function ProductsContent() {
             />
           </div>
 
-          {/* Category Filters */}
           <div className="flex flex-wrap gap-2">
             {categoryList.map((category) => (
-              <motion.div
-                key={category}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
+              <motion.div key={category} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button
                   variant={selectedCategory === category ? "default" : "outline"}
                   onClick={() => setSelectedCategory(category)}
@@ -112,19 +108,21 @@ function ProductsContent() {
             ))}
           </div>
 
-          {/* Results Count */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="text-sm text-muted-foreground"
-          >
-            Found <span className="font-semibold text-foreground">{filteredProducts.length}</span> products
-          </motion.div>
+          {!loading && (
+            <div className="text-sm text-muted-foreground">
+              Found <span className="font-semibold text-foreground">{filteredProducts.length}</span> products
+            </div>
+          )}
         </motion.div>
 
-        {/* Products Grid */}
-        {filteredProducts.length > 0 ? (
+        {loading ? (
+          <div className="text-center py-16 text-muted-foreground">Loading products…</div>
+        ) : error ? (
+          <div className="text-center py-16">
+            <h3 className="text-lg font-semibold mb-2">We couldn&apos;t load the products</h3>
+            <p className="text-muted-foreground">Refresh the page, or message us on WhatsApp to order.</p>
+          </div>
+        ) : filteredProducts.length > 0 ? (
           <motion.div
             className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
             variants={staggerContainerVariants}
@@ -140,19 +138,25 @@ function ProductsContent() {
             ))}
           </motion.div>
         ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-16"
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-16">
             <Filter className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No products found</h3>
-            <p className="text-muted-foreground mb-6">Try adjusting your search or filters</p>
-            <Button asChild variant="outline">
-              <Link href="/products" onClick={() => { setSearchQuery(""); setSelectedCategory("All") }}>
-                Reset Filters
-              </Link>
-            </Button>
+            <p className="text-muted-foreground mb-6">
+              {products.length === 0
+                ? "Products are coming soon. Check back shortly."
+                : "Try adjusting your search or filters"}
+            </p>
+            {products.length > 0 && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSearchQuery("")
+                  setSelectedCategory("All")
+                }}
+              >
+                Reset filters
+              </Button>
+            )}
           </motion.div>
         )}
       </div>
@@ -162,13 +166,13 @@ function ProductsContent() {
 
 export default function ProductsPage() {
   return (
-    <Suspense fallback={
-      <div className="container mx-auto px-4 py-8">
-        <div className="h-9 bg-muted rounded w-32 mb-2"></div>
-        <div className="h-5 bg-muted rounded w-64 mb-8"></div>
-        <div className="text-center py-16">Loading products...</div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-16">Loading products...</div>
+        </div>
+      }
+    >
       <ProductsContent />
     </Suspense>
   )

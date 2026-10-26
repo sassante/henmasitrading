@@ -2,12 +2,13 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowRight, Zap, Shield, Truck, Headphones, Timer, ToggleLeft, Gauge, Lightbulb, Box, CircuitBoard, Eye, Heart } from "lucide-react"
+import { ArrowRight, Zap, Shield, Truck, Headphones, Timer, ToggleLeft, Gauge, Lightbulb, Box, CircuitBoard } from "lucide-react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { products } from "@/lib/products"
-import { fadeInVariants, slideInVariants, staggerContainerVariants, itemVariants, useScrollAnimation } from "@/lib/animations"
+import { ProductCard } from "@/components/product-card"
+import { useCatalog } from "@/lib/use-catalog"
+import { staggerContainerVariants, itemVariants } from "@/lib/animations"
 
 const categories = [
   {
@@ -71,14 +72,14 @@ const features = [
   },
 ]
 
-const featuredProducts = products.slice(0, 4)
-
 export default function HomePage() {
+  const { products, loading } = useCatalog()
+  const featuredProducts = products.slice(0, 4)
+
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
       <section className="relative min-h-[600px] lg:min-h-[700px] flex items-center overflow-hidden">
-        {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <Image
             src="/hero-bg.jpg"
@@ -90,7 +91,6 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-r from-secondary/95 via-secondary/80 to-secondary/40" />
         </div>
 
-        {/* Animated Elements */}
         <motion.div
           className="absolute inset-0 z-0"
           initial={{ opacity: 0 }}
@@ -100,7 +100,7 @@ export default function HomePage() {
           <div className="absolute top-20 left-10 w-72 h-72 bg-primary rounded-full mix-blend-multiply filter blur-3xl" />
           <div className="absolute top-40 right-10 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl" />
         </motion.div>
-        
+
         <div className="container relative z-10 mx-auto px-4 py-20 lg:py-28">
           <motion.div
             className="max-w-2xl"
@@ -130,14 +130,8 @@ export default function HomePage() {
               Your trusted partner for quality industrial electronics. Timers, relays, contactors, panel lights, trunking and more for commercial and industrial projects.
             </motion.p>
 
-            <motion.div
-              variants={itemVariants}
-              className="flex flex-wrap gap-4 pt-2 mt-4"
-            >
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
+            <motion.div variants={itemVariants} className="flex flex-wrap gap-4 pt-2 mt-4">
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
                   <Link href="/products">
                     Browse Products
@@ -146,14 +140,9 @@ export default function HomePage() {
                 </Button>
               </motion.div>
 
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button asChild variant="outline" size="lg" className="border-white/30 text-white hover:bg-white/10 backdrop-blur-sm">
-                  <Link href="/contact">
-                    Contact Us
-                  </Link>
+                  <Link href="/contact">Contact Us</Link>
                 </Button>
               </motion.div>
             </motion.div>
@@ -182,7 +171,7 @@ export default function HomePage() {
             whileInView="visible"
             viewport={{ once: true }}
           >
-            {categories.map((category, index) => {
+            {categories.map((category) => {
               const IconComponent = category.icon
               return (
                 <motion.div
@@ -223,69 +212,19 @@ export default function HomePage() {
             <p className="text-muted-foreground max-w-2xl">Most popular products trusted by businesses across Ghana</p>
           </motion.div>
 
-          <motion.div
-            className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
-            variants={staggerContainerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-          >
-            {featuredProducts.map((product) => (
-              <motion.div
-                key={product.id}
-                variants={itemVariants}
-                whileHover={{ y: -8 }}
-                className="group"
-              >
-                <Card className="h-full overflow-hidden hover:shadow-xl transition-all">
-                  <div className="relative h-48 bg-muted overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20" />
-                    <div className="absolute inset-0 flex items-center justify-center text-6xl text-primary/20 group-hover:text-primary/40 transition-colors">
-                      {product.name.charAt(0)}
-                    </div>
-                    <motion.button
-                      whileHover={{ scale: 1.2 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/80 hover:bg-white text-red-500 backdrop-blur-sm transition-colors"
-                      aria-label="Add to wishlist"
-                    >
-                      <Heart className="h-5 w-5" />
-                    </motion.button>
-                  </div>
-
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold line-clamp-2 mb-2">{product.name}</h3>
-                    <p className="text-sm text-muted-foreground mb-3">{product.category}</p>
-                    <p className="font-bold text-lg text-primary mb-4">GH₵{product.price.toFixed(2)}</p>
-
-                    <div className="flex gap-2">
-                      <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="flex-1"
-                      >
-                        <Button asChild variant="outline" size="sm" className="w-full">
-                          <Link href={`/products/${product.id}`}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View
-                          </Link>
-                        </Button>
-                      </motion.div>
-                      <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="flex-1"
-                      >
-                        <Button size="sm" className="w-full bg-primary hover:bg-primary/90">
-                          Add to Cart
-                        </Button>
-                      </motion.div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
+          {loading ? (
+            <p className="text-center py-12 text-muted-foreground">Loading products…</p>
+          ) : featuredProducts.length === 0 ? (
+            <p className="text-center py-12 text-muted-foreground">Products are coming soon.</p>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {featuredProducts.map((product) => (
+                <Link key={product.id} href={`/products/${product.id}`}>
+                  <ProductCard product={product} />
+                </Link>
+              ))}
+            </div>
+          )}
 
           <motion.div
             className="flex justify-center mt-12"
@@ -336,7 +275,7 @@ export default function HomePage() {
                 >
                   <motion.div
                     className="p-3 rounded-lg bg-primary/10 mb-4"
-                    whileHover={{ backgroundColor: 'rgb(255, 193, 7, 0.2)', scale: 1.1 }}
+                    whileHover={{ scale: 1.1 }}
                   >
                     <IconComponent className="h-6 w-6 text-primary" />
                   </motion.div>
@@ -368,10 +307,7 @@ export default function HomePage() {
             <p className="text-lg text-gray-200 mb-6">Contact our team for bulk orders, customized solutions, and competitive pricing</p>
 
             <div className="flex flex-wrap gap-4">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
                   <Link href="/contact">
                     Get In Touch
@@ -380,10 +316,7 @@ export default function HomePage() {
                 </Button>
               </motion.div>
 
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button asChild size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10">
                   <a href="https://wa.me/233201234567" target="_blank" rel="noopener noreferrer">
                     WhatsApp Us
