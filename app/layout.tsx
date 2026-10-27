@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   title: 'Henmasi Trading Enterprise | Industrial Electrical Supplies',
   description: 'Your trusted partner for industrial electrical supplies in Accra, Ghana. Quality cables, switches, circuit breakers, and more.',
   keywords: ['electrical supplies', 'industrial electronics', 'Ghana', 'Accra', 'cables', 'switches', 'circuit breakers'],
+  verification: {
+    google: "google777ed45b5738a583.html",
+  },
 }
 
 export default function RootLayout({
